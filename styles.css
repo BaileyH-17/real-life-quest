@@ -1,0 +1,275 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+/* Calendar styles */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    padding: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background-color: #e2e8f0;
+}
+
+.calendar-day.today {
+    background-color: #6366f1;
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-day.selected {
+    background-color: #8b5cf6;
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-day.other-month {
+    color: #94a3b8;
+    background-color: transparent;
+}
+
+.calendar-day-name {
+    font-weight: bold;
+    color: #64748b;
+    font-size: 12px;
+    pointer-events: none;
+    background-color: transparent !important;
+}
+
+.schedule-marker {
+    position: absolute;
+    bottom: 4px;
+    width: 6px;
+    height: 6px;
+    background-color: #6366f1;
+    border-radius: 50%;
+}
+
+/* Tab styles */
+.tab-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    background-color: #6366f1;
+    color: white;
+    font-weight: bold;
+}
+
+/* Schedule item styles */
+.schedule-item {
+    background-color: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.schedule-item:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-item.completed {
+    opacity: 0.7;
+}
+
+.schedule-item-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Timeline styles */
+.timeline-content {
+    position: relative;
+}
+
+.timeline-line {
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e2e8f0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 32px;
+    margin-bottom: 20px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: white;
+    border: 3px solid #6366f1;
+    z-index: 1;
+}
+
+.timeline-item.completed::before {
+    background-color: #6366f1;
+    border-color: #6366f1;
+}
+
+/* Daily schedule styles */
+.daily-schedule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #f1f5f9;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.daily-schedule-item-time {
+    color: #64748b;
+    font-size: 12px;
+}
+
+/* Quest card hover effects */
+.quest-option {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quest-option:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Action button styles */
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background-color: #f1f5f9;
+}
+
+/* Medal styles */
+.medal-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.medal-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.medal-item.medal-locked {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.medal-icon {
+    font-size: 32px;
+    margin-bottom: 4px;
+}
+
+.medal-name {
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    color: #64748b;
+}
+
+/* Animation classes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .app-main {
+        padding: 16px;
+    }
+    
+    .profile-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .calendar-day {
+        font-size: 12px;
+        padding: 4px;
+    }
+    
+    .quest-select-options {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Loading state */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Smooth transitions for all elements */
+* {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}

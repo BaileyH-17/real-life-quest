@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Real Life Quest - 生活游戏化</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.294.0/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- PWA相关配置 -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Real Life Quest">
+    
+    <!-- iOS图标 -->
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+    <style>
+        /* 全局字体设置 */
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* 隐藏滚动条但保留功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 简单的淡入动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        
+        /* 进度条光效 */
+        .xp-glow { box-shadow: 0 0 10px rgba(99, 102, 241, 0.6); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-100 selection:text-indigo-700">
+
+    <div class="app-container min-h-screen max-w-md mx-auto bg-slate-50 relative shadow-2xl overflow-hidden min-h-screen border-x border-slate-100">
+        
+        <div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-indigo-50/50 to-transparent pointer-events-none"></div>
+
+        <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 px-5 pt-4 pb-2 mb-4">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="bg-indigo-600 text-white p-1.5 rounded-lg shadow-indigo-200 shadow-lg">
+                        <i data-lucide="sword" class="w-5 h-5"></i>
+                    </div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900">Real Life Quest</h1>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-100/80 px-3 py-1.5 rounded-full border border-slate-200">
+                    <span class="text-amber-500 drop-shadow-sm">🏆</span>
+                    <span id="medalsDisplay" class="text-sm font-bold text-slate-700">0</span>
+                </div>
+            </div>
+            
+            <div class="xp-section mb-4">
+                <div class="flex justify-between items-end text-xs mb-1.5 px-1">
+                    <span class="text-slate-500 font-medium">当前等级进度</span>
+                    <span id="xpDisplay" class="font-bold text-indigo-600">0 XP</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200 shadow-inner">
+                    <div id="xpProgress" class="xp-glow bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <nav class="nav-tabs grid grid-cols-3 gap-1 bg-slate-100/50 p-1 rounded-xl border border-slate-200/60">
+                <button class="tab-btn text-xs font-semibold py-2.5 rounded-lg text-slate-500 hover:text-indigo-600 transition-all duration-200 flex justify-center items-center gap-1.5" data-tab="schedule">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> 日程
+                </button>
+                <button class="tab-btn active text-xs font-semibold py-2.5 rounded-lg bg-white text-indigo-600 shadow-sm border border-slate-100 transition-all duration-200 flex justify-center items-center gap-1.5" data-tab="quest">
+                    <i data-lucide="map" class="w-4 h-4"></i> 任务
+                </button>
+                <button class="tab-btn text-xs font-semibold py-2.5 rounded-lg text-slate-500 hover:text-indigo-600 transition-all duration-200 flex justify-center items-center gap-1.5" data-tab="profile">
+                    <i data-lucide="user" class="w-4 h-4"></i> 资料
+                </button>
+            </nav>
+        </header>
+
+        <main class="app-main px-4 pb-20 relative z-0">
+            
+            <section id="schedule" class="tab-content hidden animate-fade-in">
+                <div class="calendar-container bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-5">
+                    <div class="calendar-header flex justify-between items-center mb-4">
+                        <button class="calendar-nav p-2 hover:bg-slate-50 rounded-full text-slate-400 hover:text-indigo-600 transition-colors" onclick="changeMonth(-1)">
+                            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                        </button>
+                        <h2 id="currentMonth" class="text-base font-bold text-slate-800"></h2>
+                        <button class="calendar-nav p-2 hover:bg-slate-50 rounded-full text-slate-400 hover:text-indigo-600 transition-colors" onclick="changeMonth(1)">
+                            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div class="calendar-grid grid grid-cols-7 gap-y-3 gap-x-1 text-center text-sm" id="calendarGrid">
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-3 px-1">
+                    <h2 class="text-lg font-bold text-slate-800">时间轴</h2>
+                    <button class="add-btn flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 px-4 rounded-full shadow-lg shadow-indigo-200 transition-all active:scale-95" onclick="openScheduleModal()">
+                    <i data-lucide="plus" class="w-4 h-4"></i> 添加日程
+                </button>
+                </div>
+
+                <div class="schedule-list space-y-3" id="scheduleList">
+                    <div class="text-center py-10 text-slate-400 text-sm">
+                        暂无日程，去添加一个吧！
+                     </div>
+                </div>
+            </section>
+
+            <section id="quest" class="tab-content active animate-fade-in">
+                <div class="section-header mb-4 px-1">
+                    <h2 class="text-xl font-bold text-slate-900">今日冒险</h2>
+                    <p id="selectedDateDisplayQuest" class="text-sm text-slate-500 mt-0.5"></p>
+                </div>
+                
+                <div class="bg-white/60 backdrop-blur-sm rounded-xl border border-slate-100 p-4 mb-6">
+                    <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-3">Context (今日日程)</h3>
+                    <div id="dailyScheduleList" class="daily-schedule-list space-y-2">
+                        <p class="text-sm text-slate-500 italic">空空如也...</p>
+                    </div>
+                </div>
+                
+                <div class="input-bubble bg-white rounded-2xl shadow-xl shadow-indigo-100/50 border border-indigo-50 p-6 relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-indigo-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+                    
+                    <div class="relative z-10 flex flex-col gap-4 text-center">
+                        <div class="text-slate-600 text-sm font-medium">
+                            <span class="inline-block text-2xl mb-2">🧙‍♂️</span><br>
+                            "告诉我今天的安排，<br>我为你生成专属支线任务。"
+                        </div>
+                        <button class="generate-btn w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-indigo-200 transition-all transform active:scale-[0.98] flex justify-center items-center gap-2" onclick="generateQuestsFromSchedule()">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> 开启今日冒险
+                        </button>
+                    </div>
+                </div>
+
+                <div class="current-quest-section mt-6" id="currentQuestSection" style="display: none;">
+                    <div class="flex items-center gap-2 mb-3 px-1">
+                        <span class="flex h-2 w-2 rounded-full bg-green-500"></span>
+                        <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide">进行中任务</h3>
+                    </div>
+                    <div class="current-quest" id="currentQuest">
+                        </div>
+                </div>
+                
+                <div class="quest-checkin-section mt-6 bg-white rounded-2xl shadow-sm border border-slate-100 p-5" id="questCheckinSection" style="display: none;">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="camera" class="w-5 h-5 text-indigo-500"></i> 提交凭证
+                    </h3>
+                    <form id="questCheckinForm" class="space-y-4">
+                        <div>
+                            <textarea id="checkinText" placeholder="此刻的感受..." rows="3" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm resize-none"></textarea>
+                        </div>
+                        <div class="relative">
+                            <input type="file" id="checkinImage" accept="image/*" required class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all">
+                        </div>
+                        <button type="submit" class="complete-btn w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-emerald-200 transition-all transform active:scale-[0.98]">
+                            完成任务 (+XP)
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="profile" class="tab-content hidden animate-fade-in">
+                <div class="bg-indigo-600 rounded-2xl p-6 text-white shadow-xl shadow-indigo-200 mb-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10"></div>
+                    <div class="relative z-10 text-center">
+                        <div class="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full mx-auto mb-3 flex items-center justify-center text-3xl border-2 border-white/30">
+                            😎
+                        </div>
+                        <h2 class="text-xl font-bold mb-1">勇者 001</h2>
+                        <p class="text-indigo-200 text-sm">初级探索者</p>
+                    </div>
+                </div>
+
+                <div class="profile-stats grid grid-cols-3 gap-3 mb-6">
+                <div class="bg-white rounded-2xl border border-slate-100 p-3 text-center shadow-sm">
+                    <span class="block text-xs text-slate-400 mb-1">XP</span>
+                    <span id="totalXpDisplay" class="text-xl font-bold text-indigo-600">0</span>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-100 p-3 text-center shadow-sm">
+                    <span class="block text-xs text-slate-400 mb-1">勋章</span>
+                    <span id="totalMedalsDisplay" class="text-xl font-bold text-amber-500">0</span>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-100 p-3 text-center shadow-sm">
+                    <span class="block text-xs text-slate-400 mb-1">任务</span>
+                    <span id="completedQuestsDisplay" class="text-xl font-bold text-emerald-500">0</span>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <button id="initBtn" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-xl font-medium shadow-lg shadow-red-200 transition-all transform active:scale-95">
+                    初始化数据
+                </button>
+            </div>
+
+                <div class="medals-section bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="award" class="w-4 h-4 text-amber-500"></i> 勋章墙
+                    </h3>
+                    <div class="medals-grid grid grid-cols-4 gap-3" id="medalsGrid">
+                        </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="scheduleModal" class="modal fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+        <div class="absolute bottom-0 left-0 right-0 md:relative md:m-auto w-full md:max-w-md bg-white md:rounded-2xl rounded-t-2xl shadow-2xl transform transition-transform duration-300 translate-y-full md:translate-y-0 p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="scheduleModalTitle" class="text-lg font-bold text-slate-800">添加新日程</h3>
+                <button class="close p-2 bg-slate-50 rounded-full hover:bg-slate-100 text-slate-500">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="scheduleForm" class="space-y-4">
+                <input type="hidden" id="scheduleId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">事件名称</label>
+                    <input type="text" id="scheduleTitle" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">日期</label>
+                    <input type="date" id="scheduleDate" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">开始</label>
+                         <input type="time" id="scheduleStartTime" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div>
+                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">结束</label>
+                         <input type="time" id="scheduleEndTime" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="button" class="cancel-btn flex-1 py-3 rounded-xl font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">取消</button>
+                    <button type="submit" class="save-btn flex-1 py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all transform active:scale-95">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="questSelectModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md"></div>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="questSelectContent">
+            <div class="bg-indigo-600 p-6 text-white text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                <h3 class="text-2xl font-bold relative z-10">Choose Your Path</h3>
+                <p class="text-indigo-100 text-sm mt-1 relative z-10">根据你的状态，系统生成了以下分支</p>
+                <button class="close absolute top-4 right-4 text-white/70 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="quest-select-options grid grid-cols-1 gap-4">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data/quests.js"></script>
+    <script src="utils/analyzeAndRecommend.js"></script>
+    <script src="utils/generateQuests.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // 确保所有脚本加载完成后再执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化 Lucide 图标
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            // 简单的 Tab 切换逻辑 (为了演示效果)
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active', 'bg-white', 'text-indigo-600', 'shadow-sm', 'border', 'border-slate-100'));
+                    tabs.forEach(t => t.classList.add('text-slate-500'));
+                    
+                    tab.classList.add('active', 'bg-white', 'text-indigo-600', 'shadow-sm', 'border', 'border-slate-100');
+                    tab.classList.remove('text-slate-500');
+                    
+                    const target = tab.dataset.tab;
+                    contents.forEach(content => {
+                        content.classList.add('hidden');
+                        if(content.id === target) {
+                            content.classList.remove('hidden');
+                        }
+                    });
+                });
+            });
+
+            // 简单的模态框关闭逻辑
+            document.querySelectorAll('.close, .cancel-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal');
+                    if (modal) {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <!-- 注册Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
