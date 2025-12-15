@@ -14,15 +14,13 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     
-    <!-- PWA相关配置 -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Real Life Quest">
     
-    <!-- iOS图标 -->
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
 
     <style>
         /* 全局字体设置 */
@@ -271,10 +269,11 @@
         </div>
     </div>
 
-    <script src="data/quests.js"></script>
-    <script src="utils/analyzeAndRecommend.js"></script>
-    <script src="utils/generateQuests.js"></script>
+    <script src="quests.js"></script>
+    <script src="analyzeAndRecommend.js"></script>
+    <script src="generateQuests.js"></script>
     <script src="script.js"></script>
+    
     <script>
         // 确保所有脚本加载完成后再执行
         document.addEventListener('DOMContentLoaded', function() {
@@ -318,11 +317,10 @@
         });
     </script>
     
-    <!-- 注册Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
+                navigator.serviceWorker.register('service-worker.js')
                     .then((registration) => {
                         console.log('Service Worker registered with scope:', registration.scope);
                     })
