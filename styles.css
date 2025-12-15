@@ -31,27 +31,33 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .calendar-day:hover {
-    background-color: #e2e8f0;
+    background-color: rgba(226, 232, 240, 0.9);
+    transform: translateY(-1px);
 }
 
 .calendar-day.today {
-    background-color: #6366f1;
+    background-color: rgba(99, 102, 241, 0.9);
     color: white;
     font-weight: bold;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .calendar-day.selected {
-    background-color: #8b5cf6;
+    background-color: rgba(139, 92, 246, 0.9);
     color: white;
     font-weight: bold;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .calendar-day.other-month {
     color: #94a3b8;
-    background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.3);
 }
 
 .calendar-day-name {
@@ -67,8 +73,9 @@ body {
     bottom: 4px;
     width: 6px;
     height: 6px;
-    background-color: #6366f1;
+    background-color: rgba(99, 102, 241, 0.9);
     border-radius: 50%;
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
 }
 
 /* Tab styles */
@@ -81,27 +88,33 @@ body {
 }
 
 .tab-btn.active {
-    background-color: #6366f1;
-    color: white;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #6366f1;
     font-weight: bold;
+    backdrop-filter: blur(10px);
 }
 
 /* Schedule item styles */
 .schedule-item {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .schedule-item:hover {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.95);
+    transform: translateY(-1px);
 }
 
 .schedule-item.completed {
     opacity: 0.7;
+    background-color: rgba(255, 255, 255, 0.6);
 }
 
 .schedule-item-title {
@@ -123,31 +136,37 @@ body {
     top: 0;
     bottom: 0;
     width: 2px;
-    background-color: #e2e8f0;
+    background-color: rgba(226, 232, 240, 0.8);
 }
 
 .timeline-item {
     position: relative;
     padding-left: 32px;
     margin-bottom: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(5px);
+    border-radius: 12px;
+    padding: 16px 16px 16px 32px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .timeline-item::before {
     content: '';
     position: absolute;
     left: 4px;
-    top: 4px;
+    top: 20px;
     width: 18px;
     height: 18px;
     border-radius: 50%;
     background-color: white;
-    border: 3px solid #6366f1;
+    border: 3px solid rgba(99, 102, 241, 0.9);
     z-index: 1;
+    backdrop-filter: blur(5px);
 }
 
 .timeline-item.completed::before {
-    background-color: #6366f1;
-    border-color: #6366f1;
+    background-color: rgba(99, 102, 241, 0.9);
+    border-color: rgba(99, 102, 241, 0.9);
 }
 
 /* Daily schedule styles */
@@ -156,10 +175,18 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    background-color: #f1f5f9;
+    background-color: rgba(241, 245, 249, 0.8);
+    backdrop-filter: blur(5px);
     border-radius: 8px;
     margin-bottom: 8px;
     font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.daily-schedule-item:hover {
+    background-color: rgba(241, 245, 249, 1);
+    transform: translateY(-1px);
 }
 
 .daily-schedule-item-time {
@@ -171,11 +198,15 @@ body {
 .quest-option {
     cursor: pointer;
     transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .quest-option:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+    background-color: rgba(255, 255, 255, 1);
 }
 
 /* Action button styles */
@@ -189,7 +220,8 @@ body {
 }
 
 .action-btn:hover {
-    background-color: #f1f5f9;
+    background-color: rgba(241, 245, 249, 0.9);
+    transform: scale(1.1);
 }
 
 /* Medal styles */
@@ -199,20 +231,24 @@ body {
     align-items: center;
     gap: 4px;
     padding: 12px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
     border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .medal-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.95);
 }
 
 .medal-item.medal-locked {
     opacity: 0.5;
     pointer-events: none;
+    background-color: rgba(241, 245, 249, 0.6);
 }
 
 .medal-icon {
@@ -271,5 +307,86 @@ body {
 
 /* Smooth transitions for all elements */
 * {
-    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Modal styles */
+.modal {
+    backdrop-filter: blur(10px);
+}
+
+/* Context menu styles */
+.context-menu {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 5px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    padding: 0.5rem 0;
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.context-menu-item:hover {
+    background-color: rgba(241, 245, 249, 0.9);
+}
+
+.context-menu-item.text-red-600:hover {
+    background-color: rgba(254, 226, 226, 0.9);
+}
+
+/* App container styles */
+.app-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+}
+
+/* Header styles */
+header {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(241, 245, 249, 0.8);
+}
+
+/* Input bubble styles */
+.input-bubble {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Profile section styles */
+.bg-indigo-600 {
+    background-color: rgba(99, 102, 241, 0.95);
+    backdrop-filter: blur(5px);
+}
+
+.profile-stats > div {
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.profile-stats > div:hover {
+    background-color: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Medals section styles */
+.medals-section {
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
