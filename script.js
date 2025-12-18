@@ -9,7 +9,11 @@ let gameData = {
     completedQuestsCount: 0,
     completedQuests: [],
     currentQuest: null,
-    lastQuestDate: null
+    lastQuestDate: null,
+    userInfo: {
+        name: '超级爆炸龙',
+        avatar: null
+    }
 };
 
 // 勋章定义
@@ -41,21 +45,6 @@ let selectedDate = new Date();
 // 页面加载时初始化
 document.addEventListener('DOMContentLoaded', function() {
     initApp();
-    
-    // 添加初始化按钮点击事件
-    const initBtn = document.getElementById('initBtn');
-    if (initBtn) {
-        initBtn.addEventListener('click', function() {
-            if (confirm('确定要初始化所有数据吗？此操作不可恢复！')) {
-                // 清除所有本地存储数据
-                localStorage.removeItem('schedules');
-                localStorage.removeItem('gameData');
-                
-                // 重新加载页面
-                location.reload();
-            }
-        });
-    }
 });
 
 // 初始化应用
@@ -79,6 +68,26 @@ function initApp() {
     renderDailySchedule();
     updateGameStats();
     renderMedals();
+    
+    // 初始化设置功能
+    initSettings();
+    
+    // 渲染用户信息
+    renderUserInfo();
+    
+    // 测试设置按钮事件绑定
+    console.log('initApp completed');
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        console.log('Settings button found');
+        // 直接绑定事件，确保能触发
+        settingsBtn.onclick = function() {
+            console.log('Settings button clicked');
+            openSettingsModal();
+        };
+    } else {
+        console.log('Settings button not found');
+    }
 }
 
 
@@ -140,11 +149,18 @@ function renderDailySchedule() {
 function generateQuestsFromSchedule() {
     const selectedDateString = formatDateForStorage(selectedDate);
     
+    // 检查今天是否已经领取过任务
+    const today = formatDateForStorage(new Date());
+    if (gameData.lastQuestDate === today) {
+        showNotification('今天已经领取过任务了，明天再来吧！', 'info');
+        return;
+    }
+    
     // 获取选中日期的日程
     const daySchedules = schedules.filter(s => s.date === selectedDateString);
     
     if (daySchedules.length === 0) {
-        alert('请先添加当日日程');
+        showNotification('请先添加当日日程', 'warning');
         return;
     }
     
@@ -175,7 +191,7 @@ function generateQuestsFromSchedule() {
     } catch (error) {
         console.error('生成任务失败:', error);
         // 显示错误信息
-        alert('生成任务失败，请重试');
+        showNotification('生成任务失败，请重试', 'error');
     } finally {
         // 恢复按钮状态
         generateBtn.textContent = originalText;
@@ -442,13 +458,13 @@ function completeQuestCheckin() {
     const checkinImage = document.getElementById('checkinImage').files[0];
     
     if (!checkinText) {
-        alert('请分享你的完成感受');
+        showNotification('请分享你的完成感受', 'warning');
         return;
     }
     
     // 检查是否选择了图片
     if (!checkinImage) {
-        alert('请添加一张图片');
+        showNotification('请添加一张图片', 'warning');
         return;
     }
     
@@ -459,7 +475,7 @@ function completeQuestCheckin() {
         // 确保当前任务存在
         if (!gameData.currentQuest) {
             console.error('No current quest found!');
-            alert('任务数据错误，请重试');
+            showNotification('任务数据错误，请重试', 'error');
             return;
         }
         
@@ -503,7 +519,7 @@ function completeQuestCheckin() {
         renderCalendar();
         
         // 显示成功消息
-        alert(`任务完成！获得 ${xpGain} XP`);
+        showNotification(`任务完成！获得 ${xpGain} XP`, 'success');
         
         // 庆祝效果：撒花
         confetti({
@@ -527,7 +543,7 @@ function completeQuestCheckin() {
     };
     reader.onerror = function(error) {
         console.error('Image processing error:', error);
-        alert('图片处理失败，请重试');
+        showNotification('图片处理失败，请重试', 'error');
     };
     reader.readAsDataURL(checkinImage);
 }
@@ -548,7 +564,7 @@ function checkMedals() {
     MEDALS.forEach(medal => {
         if (!gameData.medals.includes(medal.id) && meetsMedalCondition(medal)) {
             gameData.medals.push(medal.id);
-            alert(`恭喜获得新勋章：${medal.name} ${medal.icon}`);
+            showNotification(`恭喜获得新勋章：${medal.name} ${medal.icon}`, 'success');
         }
     });
 }
@@ -772,6 +788,95 @@ function initForms() {
             completeQuestCheckin();
         });
     }
+    
+    // 设置表单
+    const settingsForm = document.getElementById('settingsForm');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveSettings();
+        });
+    }
+}
+
+// 初始化设置功能
+function initSettings() {
+    // 绑定头像上传事件
+    const avatarUpload = document.getElementById('avatarUpload');
+    if (avatarUpload) {
+        avatarUpload.addEventListener('change', handleAvatarUpload);
+    }
+    
+    // 绑定更改头像按钮事件
+    const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+    if (changeAvatarBtn) {
+        changeAvatarBtn.addEventListener('click', function() {
+            document.getElementById('avatarUpload').click();
+        });
+    }
+    
+    // 绑定更改昵称按钮事件
+    const changeNameBtn = document.getElementById('changeNameBtn');
+    if (changeNameBtn) {
+        changeNameBtn.addEventListener('click', function() {
+            document.getElementById('nameInputPanel').classList.remove('hidden');
+            // 设置当前昵称
+            document.getElementById('userName').value = gameData.userInfo.name;
+        });
+    }
+    
+    // 绑定取消更改昵称按钮事件
+    const cancelNameBtn = document.getElementById('cancelNameBtn');
+    if (cancelNameBtn) {
+        cancelNameBtn.addEventListener('click', function() {
+            document.getElementById('nameInputPanel').classList.add('hidden');
+        });
+    }
+    
+    // 绑定保存昵称按钮事件
+    const saveNameBtn = document.getElementById('saveNameBtn');
+    if (saveNameBtn) {
+        saveNameBtn.addEventListener('click', function() {
+            const userName = document.getElementById('userName').value.trim();
+            if (!userName) {
+                showNotification('请输入昵称', 'warning');
+                return;
+            }
+            // 更新用户信息
+            gameData.userInfo.name = userName;
+            // 保存到本地存储
+            saveGameData();
+            // 重新渲染用户信息
+            renderUserInfo();
+            // 隐藏输入面板
+            document.getElementById('nameInputPanel').classList.add('hidden');
+            // 显示保存成功提示
+            showNotification('昵称已更新', 'success');
+        });
+    }
+    
+    // 绑定系统初始化按钮事件
+    const initSystemBtn = document.getElementById('initSystemBtn');
+    if (initSystemBtn) {
+        initSystemBtn.addEventListener('click', initSystem);
+    }
+    
+    // 绑定设置模态框关闭事件
+    const settingsModal = document.getElementById('settingsModal');
+    if (settingsModal) {
+        // 点击关闭按钮
+        const closeBtn = settingsModal.querySelector('.close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeSettingsModal);
+        }
+        
+        // 点击模态框外部
+        settingsModal.addEventListener('click', function(e) {
+            if (e.target === settingsModal) {
+                closeSettingsModal();
+            }
+        });
+    }
 }
 
 // --------------------- 日程管理功能 --------------------- 
@@ -933,7 +1038,7 @@ function renderSchedules() {
     }
     
     container.innerHTML = sortedSchedules.map(schedule => `
-        <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 transition-all hover:shadow-md ${schedule.completed ? 'opacity-70' : ''}">
+        <div class="schedule-item bg-white rounded-xl shadow-sm border border-slate-100 p-4 transition-all hover:shadow-md ${schedule.completed ? 'opacity-70' : ''}" data-schedule-id="${schedule.id}">
             <div class="flex justify-between items-start mb-3">
                 <div class="flex items-start gap-2">
                     <button class="p-1 hover:bg-slate-100 rounded-full transition-colors" onclick="toggleScheduleComplete('${schedule.id}')" title="${schedule.completed ? '标记为未完成' : '标记为完成'}">
@@ -958,6 +1063,118 @@ function renderSchedules() {
             ${schedule.description ? `<div class="text-sm text-slate-600 pl-7">${schedule.description}</div>` : ''}
         </div>
     `).join('');
+    
+    // 添加长按事件监听器
+    addLongPressEventListeners();
+}
+
+// 添加长按事件监听器
+function addLongPressEventListeners() {
+    const scheduleItems = document.querySelectorAll('.schedule-item');
+    let longPressTimer;
+    
+    scheduleItems.forEach(item => {
+        // 鼠标事件（用于桌面）
+        item.addEventListener('mousedown', (e) => {
+            startLongPress(e, item);
+        });
+        
+        item.addEventListener('mouseup', cancelLongPress);
+        item.addEventListener('mouseleave', cancelLongPress);
+        
+        // 触摸事件（用于移动设备）
+        item.addEventListener('touchstart', (e) => {
+            startLongPress(e, item);
+        });
+        
+        item.addEventListener('touchend', cancelLongPress);
+        item.addEventListener('touchcancel', cancelLongPress);
+    });
+    
+    function startLongPress(e, item) {
+        longPressTimer = setTimeout(() => {
+            showContextMenu(e, item.dataset.scheduleId);
+        }, 500); // 500ms长按阈值
+    }
+    
+    function cancelLongPress() {
+        clearTimeout(longPressTimer);
+    }
+}
+
+// 显示上下文菜单
+function showContextMenu(event, scheduleId) {
+    // 移除现有的上下文菜单
+    hideContextMenu();
+    
+    // 创建上下文菜单
+    const contextMenu = document.createElement('div');
+    contextMenu.id = 'contextMenu';
+    contextMenu.className = 'context-menu fixed z-50 bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 transition-all duration-200 opacity-0 transform scale-95';
+    contextMenu.innerHTML = `
+        <div class="context-menu-item flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-indigo-50 cursor-pointer transition-colors" onclick="openScheduleModal('${scheduleId}'); hideContextMenu();">
+            <i data-lucide="edit" class="w-4 h-4 text-indigo-500"></i>
+            编辑
+        </div>
+        <div class="context-menu-item flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 cursor-pointer transition-colors" onclick="deleteSchedule('${scheduleId}'); hideContextMenu();">
+            <i data-lucide="trash-2" class="w-4 h-4 text-red-500"></i>
+            删除
+        </div>
+    `;
+    
+    // 添加到文档
+    document.body.appendChild(contextMenu);
+    
+    // 设置位置
+    const rect = event.target.getBoundingClientRect();
+    let x = event.clientX;
+    let y = event.clientY;
+    
+    // 确保菜单在视窗内
+    const menuWidth = contextMenu.offsetWidth;
+    const menuHeight = contextMenu.offsetHeight;
+    
+    if (x + menuWidth > window.innerWidth) {
+        x = window.innerWidth - menuWidth - 10;
+    }
+    
+    if (y + menuHeight > window.innerHeight) {
+        y = window.innerHeight - menuHeight - 10;
+    }
+    
+    contextMenu.style.left = `${x}px`;
+    contextMenu.style.top = `${y}px`;
+    
+    // 显示菜单（添加动画）
+    setTimeout(() => {
+        contextMenu.style.opacity = '1';
+        contextMenu.style.transform = 'scale(1)';
+    }, 10);
+    
+    // 添加点击外部关闭菜单
+    document.addEventListener('click', hideContextMenu);
+    
+    // 重新初始化Lucide图标
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+// 隐藏上下文菜单
+function hideContextMenu() {
+    const contextMenu = document.getElementById('contextMenu');
+    if (contextMenu) {
+        // 添加关闭动画
+        contextMenu.style.opacity = '0';
+        contextMenu.style.transform = 'scale(0.95)';
+        
+        setTimeout(() => {
+            contextMenu.remove();
+        }, 200);
+        
+        // 移除事件监听器
+        document.removeEventListener('click', hideContextMenu);
+    }
 }
 
 // 渲染时间轴 - 注意：scheduleTimeline元素在当前HTML中不存在，已简化该函数
@@ -1037,11 +1254,176 @@ function formatDate(date) {
 window.onclick = function(event) {
     const scheduleModal = document.getElementById('scheduleModal');
     const questSelectModal = document.getElementById('questSelectModal');
+    const settingsModal = document.getElementById('settingsModal');
     
     if (event.target === scheduleModal) {
         closeScheduleModal();
     }
     if (event.target === questSelectModal) {
         closeQuestSelectModal();
+    }
+    if (event.target === settingsModal) {
+        closeSettingsModal();
+    }
+}
+
+// --------------------- 自定义通知功能 --------------------- 
+
+// 显示自定义通知
+function showNotification(message, type = 'info') {
+    // 获取通知元素
+    const notification = document.getElementById('notification');
+    const notificationIcon = document.getElementById('notificationIcon');
+    const notificationTitle = document.getElementById('notificationTitle');
+    const notificationMessage = document.getElementById('notificationMessage');
+    
+    // 设置通知类型和内容
+    const types = {
+        info: { icon: 'ℹ️', title: '提示', color: '#6366f1' },
+        success: { icon: '✅', title: '成功', color: '#10b981' },
+        warning: { icon: '⚠️', title: '警告', color: '#f59e0b' },
+        error: { icon: '❌', title: '错误', color: '#ef4444' }
+    };
+    
+    const config = types[type] || types.info;
+    notificationIcon.textContent = config.icon;
+    notificationTitle.textContent = config.title;
+    notificationMessage.textContent = message;
+    
+    // 显示通知
+    notification.classList.remove('hidden');
+    notification.style.transform = 'translateY(0) scale(1)';
+    notification.style.opacity = '1';
+    
+    // 3秒后自动隐藏
+    setTimeout(hideNotification, 3000);
+}
+
+// 隐藏自定义通知
+function hideNotification() {
+    const notification = document.getElementById('notification');
+    notification.style.transform = 'translateY(-20px) scale(0.95)';
+    notification.style.opacity = '0';
+    
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 300);
+}
+
+// --------------------- 设置功能 --------------------- 
+
+// 打开设置模态框
+function openSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (!modal) {
+        console.error('Settings modal not found');
+        return;
+    }
+    
+    const modalContent = modal.querySelector('.bg-white');
+    if (!modalContent) {
+        console.error('Modal content not found');
+        return;
+    }
+    
+    // 重置面板状态
+    document.getElementById('nameInputPanel').classList.add('hidden');
+    
+    // 显示模态框
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    // 添加动画
+    setTimeout(() => {
+        modalContent.style.opacity = '1';
+        modalContent.style.transform = 'scale(1)';
+    }, 10);
+    
+    console.log('Settings modal opened');
+}
+
+// 关闭设置模态框
+function closeSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (!modal) return;
+    
+    const modalContent = modal.querySelector('.bg-white');
+    if (!modalContent) return;
+    
+    // 添加关闭动画
+    modalContent.style.opacity = '0';
+    modalContent.style.transform = 'scale(0.95)';
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        // 重置面板状态
+        document.getElementById('nameInputPanel').classList.add('hidden');
+    }, 300);
+}
+
+// 处理头像上传
+function handleAvatarUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // 检查文件类型
+    if (!file.type.startsWith('image/')) {
+        showNotification('请选择图片文件', 'warning');
+        return;
+    }
+    
+    // 读取文件
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        gameData.userInfo.avatar = e.target.result;
+        // 保存到本地存储
+        saveGameData();
+        // 重新渲染用户信息
+        renderUserInfo();
+        // 显示成功提示
+        showNotification('头像已更新', 'success');
+    };
+    reader.readAsDataURL(file);
+}
+
+// 更新头像预览
+function updateAvatarPreview() {
+    // 头像预览现在在个人资料界面，不在设置模态框中
+    const profileAvatar = document.querySelector('.profile-stats + .bg-indigo-600 .w-20');
+    if (profileAvatar) {
+        if (gameData.userInfo.avatar) {
+            // 如果有头像图片，使用图片
+            profileAvatar.innerHTML = `<img src="${gameData.userInfo.avatar}" alt="头像" class="w-full h-full rounded-full object-cover border-2 border-white/30 shadow-lg">`;
+        } else {
+            // 否则使用默认头像
+            profileAvatar.innerHTML = '😎';
+        }
+    }
+}
+
+// 保存设置功能已拆分到单独的按钮事件中，不再需要此函数
+
+// 渲染用户信息
+function renderUserInfo() {
+    // 更新个人资料界面的用户名
+    const profileName = document.querySelector('.profile-stats + .bg-indigo-600 h2');
+    if (profileName) {
+        profileName.textContent = gameData.userInfo.name;
+    }
+    
+    // 更新头像预览
+    updateAvatarPreview();
+}
+
+// 系统初始化
+function initSystem() {
+    if (confirm('确定要初始化所有数据吗？此操作不可恢复！')) {
+        // 清除所有本地存储数据
+        localStorage.removeItem('schedules');
+        localStorage.removeItem('gameData');
+        
+        // 重新加载页面
+        location.reload();
     }
 }
