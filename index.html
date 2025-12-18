@@ -14,13 +14,15 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     
-    <link rel="manifest" href="manifest.json">
+    <!-- PWA相关配置 -->
+    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Real Life Quest">
     
-    <link rel="apple-touch-icon" href="icon.png">
+    <!-- iOS图标 -->
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
     <style>
         /* 全局字体设置 */
@@ -254,11 +256,7 @@
                 </div>
             </div>
             
-            <div class="mb-6">
-                <button id="initBtn" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-xl font-medium shadow-lg shadow-red-200 transition-all transform active:scale-95">
-                    初始化数据
-                </button>
-            </div>
+
 
                 <div class="medals-section bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
                     <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -268,6 +266,7 @@
                         </div>
                 </div>
                 
+                <!-- 设置按钮 -->
                 <button id="settingsBtn" class="mt-6 w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium py-3 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-2">
                     <i data-lucide="settings" class="w-4 h-4"></i> 设置
                 </button>
@@ -275,9 +274,10 @@
         </main>
     </div>
     
+    <!-- 设置模态框 -->
     <div id="settingsModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md"></div>
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden transform scale-95 opacity-0 transition-all duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm relative z-10 overflow-hidden transform scale-95 opacity-0 transition-all duration-300">
             <div class="bg-indigo-600 p-6 text-white text-center relative overflow-hidden">
                 <h3 class="text-xl font-bold">设置</h3>
                 <button class="close absolute top-4 right-4 text-white/70 hover:text-white">
@@ -285,37 +285,28 @@
                 </button>
             </div>
             
-            <div class="p-6">
-                <form id="settingsForm" class="space-y-6">
-                    <div class="text-center">
-                        <div class="relative w-24 h-24 mx-auto mb-4">
-                            <img id="avatarPreview" src="" alt="头像预览" class="w-full h-full rounded-full object-cover border-4 border-white shadow-lg">
-                            <label for="avatarUpload" class="absolute bottom-0 right-0 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center cursor-pointer transition-all transform hover:scale-110 shadow-lg">
-                                <i data-lucide="camera" class="w-5 h-5"></i>
-                            </label>
-                            <input type="file" id="avatarUpload" accept="image/*" class="hidden">
-                        </div>
-                        <div class="text-sm text-slate-500 mb-4">点击相机图标更换头像</div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">昵称</label>
-                        <input type="text" id="userName" placeholder="输入你的昵称" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                    </div>
-                    
-                    <div class="pt-4">
-                        <button type="button" id="initSystemBtn" class="w-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-3 px-6 rounded-xl shadow-lg shadow-red-200 transition-all active:scale-95 flex items-center justify-center gap-2">
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> 初始化系统
-                        </button>
-                        <div class="text-xs text-slate-500 mt-2 text-center">警告：此操作将清除所有数据，不可恢复</div>
-                    </div>
-                    
-                    <div class="pt-4">
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all transform active:scale-95">
-                            保存设置
-                        </button>
-                    </div>
-                </form>
+            <div class="p-6 space-y-4">
+                <!-- 直接显示昵称输入框 -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-700">昵称</label>
+                    <input type="text" id="userName" placeholder="输入你的昵称" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                </div>
+                
+                <!-- 直接显示头像上传控件 -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-700">头像</label>
+                    <input type="file" id="avatarUpload" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all">
+                </div>
+                
+                <!-- 保存按钮 -->
+                <button id="saveSettingsBtn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium py-4 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95">
+                    保存设置
+                </button>
+                
+                <!-- 初始化数据按钮 -->
+                <button id="initSystemBtn" class="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white text-sm font-medium py-4 px-6 rounded-xl shadow-lg shadow-red-200 transition-all active:scale-95">
+                    初始化数据
+                </button>
             </div>
         </div>
     </div>
@@ -376,10 +367,25 @@
         </div>
     </div>
 
-    <script src="quests.js"></script>
-    <script src="analyzeAndRecommend.js"></script>
-    <script src="generateQuests.js"></script>
+    <script src="data/quests.js"></script>
+    <script src="utils/analyzeAndRecommend.js"></script>
+    <script src="utils/generateQuests.js"></script>
     <script src="script.js"></script>
+    <!-- 自定义通知组件 -->
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden transform transition-all duration-300 ease-out">
+        <div class="bg-white rounded-2xl shadow-xl p-5 max-w-sm w-full border border-slate-100">
+            <div class="flex items-start gap-3">
+                <div id="notificationIcon" class="text-2xl"></div>
+                <div class="flex-1">
+                    <h3 id="notificationTitle" class="font-semibold text-slate-800 mb-1"></h3>
+                    <p id="notificationMessage" class="text-sm text-slate-600"></p>
+                </div>
+                <button id="notificationClose" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
     
     <script>
         // 确保所有脚本加载完成后再执行
@@ -421,13 +427,133 @@
                     }
                 });
             });
+            
+            // 初始化通知关闭按钮
+            const notificationClose = document.getElementById('notificationClose');
+            if (notificationClose) {
+                notificationClose.addEventListener('click', hideNotification);
+            }
+            
+            // 设置按钮点击事件
+            const settingsBtn = document.getElementById('settingsBtn');
+            const settingsModal = document.getElementById('settingsModal');
+            const userNameInput = document.getElementById('userName');
+            const avatarUpload = document.getElementById('avatarUpload');
+            const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+            const initSystemBtn = document.getElementById('initSystemBtn');
+            
+            if (settingsBtn && settingsModal) {
+                // 显示设置弹窗
+                settingsBtn.addEventListener('click', function() {
+                    // 填充当前设置
+                    if (userNameInput && typeof gameData !== 'undefined') {
+                        userNameInput.value = gameData.userInfo?.name || '勇者 001';
+                    }
+                    
+                    // 显示设置弹窗
+                    settingsModal.classList.remove('hidden');
+                    settingsModal.classList.add('flex');
+                    // 添加动画效果
+                    const modalContent = settingsModal.querySelector('.bg-white');
+                    if (modalContent) {
+                        setTimeout(() => {
+                            modalContent.style.opacity = '1';
+                            modalContent.style.transform = 'scale(1)';
+                        }, 10);
+                    }
+                });
+                
+                // 保存设置
+                if (saveSettingsBtn && userNameInput) {
+                    saveSettingsBtn.addEventListener('click', function() {
+                        const newName = userNameInput.value.trim();
+                        if (!newName) {
+                            alert('请输入昵称');
+                            return;
+                        }
+                        
+                        // 更新用户信息
+                        if (typeof gameData !== 'undefined') {
+                            gameData.userInfo = gameData.userInfo || {};
+                            gameData.userInfo.name = newName;
+                            
+                            // 保存到本地存储
+                            localStorage.setItem('gameData', JSON.stringify(gameData));
+                            
+                            // 更新显示
+                            const profileName = document.querySelector('.profile-stats + .bg-indigo-600 h2');
+                            if (profileName) {
+                                profileName.textContent = newName;
+                            }
+                            
+                            // 显示成功提示
+                            alert('设置已保存');
+                            
+                            // 关闭模态框
+                            settingsModal.classList.add('hidden');
+                            settingsModal.classList.remove('flex');
+                        }
+                    });
+                }
+                
+                // 初始化数据
+                if (initSystemBtn) {
+                    initSystemBtn.addEventListener('click', function() {
+                        if (confirm('确定要初始化所有数据吗？此操作不可恢复！')) {
+                            // 清除所有本地存储数据
+                            localStorage.removeItem('schedules');
+                            localStorage.removeItem('gameData');
+                            
+                            // 重新加载页面
+                            location.reload();
+                        }
+                    });
+                }
+                
+                // 头像上传处理
+                if (avatarUpload) {
+                    avatarUpload.addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        
+                        // 检查文件类型
+                        if (!file.type.startsWith('image/')) {
+                            alert('请选择图片文件');
+                            return;
+                        }
+                        
+                        // 读取文件
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            if (typeof gameData !== 'undefined') {
+                                gameData.userInfo = gameData.userInfo || {};
+                                gameData.userInfo.avatar = e.target.result;
+                                
+                                // 保存到本地存储
+                                localStorage.setItem('gameData', JSON.stringify(gameData));
+                                
+                                // 更新显示
+                                const profileAvatar = document.querySelector('.profile-stats + .bg-indigo-600 .w-20');
+                                if (profileAvatar) {
+                                    profileAvatar.innerHTML = `<img src="${e.target.result}" alt="头像" class="w-full h-full rounded-full object-cover border-2 border-white/30 shadow-lg">`;
+                                }
+                                
+                                // 显示成功提示
+                                alert('头像已更新');
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+            }
         });
     </script>
     
+    <!-- 注册Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
+                navigator.serviceWorker.register('/service-worker.js')
                     .then((registration) => {
                         console.log('Service Worker registered with scope:', registration.scope);
                     })
